@@ -1,0 +1,44 @@
+table 'Metric Selector'
+	lineageTag: c6b130c1-d4bb-407c-acaa-0e75bff2bf6e
+
+	column 'Metric Selector'
+		dataType: string
+		lineageTag: 485a16a7-2685-486c-a027-2d4b51fa45a9
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Metric Selector Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Metric Selector Fields'
+
+	column 'Metric Selector Fields'
+		dataType: string
+		isHidden
+		lineageTag: 39bf6d0c-3a40-45c0-aef7-9ee95af36a92
+		summarizeBy: none
+		sourceColumn: [Value2]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+	column 'Metric Selector Order'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e8108813-79a7-42ed-ae8c-1998014eb8c1
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+	partition 'Metric Selector' = calculated
+		mode: import
+		source =
+				{
+				    ("Amount", NAMEOF('_Measures'[Total Amount]), 0),
+				    ("Transactions", NAMEOF('_Measures'[Total Transactions]), 1),
+				    ("Fees", NAMEOF('_Measures'[Total Fees]), 2),
+				    ("Tax", NAMEOF('_Measures'[Total Tax]), 3)
+				}
+

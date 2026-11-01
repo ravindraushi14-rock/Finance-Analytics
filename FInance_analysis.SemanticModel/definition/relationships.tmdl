@@ -1,0 +1,4 @@
+relationship dc092b6c-baf1-5cb0-b0c2-7e8e1cbc2e5c
+	fromColumn: fact_transactions.transaction_date
+	toColumn: Calendar.Date
+

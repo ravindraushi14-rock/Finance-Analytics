@@ -1,0 +1,246 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "dtTable",
+  "position": {
+    "x": 10,
+    "y": 360,
+    "z": 7000,
+    "width": 1260,
+    "height": 350,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "transaction_id"
+                }
+              },
+              "queryRef": "fact_transactions.transaction_id",
+              "nativeQueryRef": "transaction_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "transaction_date"
+                }
+              },
+              "queryRef": "fact_transactions.transaction_date",
+              "nativeQueryRef": "transaction_date"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "customer_id"
+                }
+              },
+              "queryRef": "fact_transactions.customer_id",
+              "nativeQueryRef": "customer_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "customer_segment"
+                }
+              },
+              "queryRef": "fact_transactions.customer_segment",
+              "nativeQueryRef": "customer_segment"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "state"
+                }
+              },
+              "queryRef": "fact_transactions.state",
+              "nativeQueryRef": "state"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "channel"
+                }
+              },
+              "queryRef": "fact_transactions.channel",
+              "nativeQueryRef": "channel"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "transaction_type"
+                }
+              },
+              "queryRef": "fact_transactions.transaction_type",
+              "nativeQueryRef": "transaction_type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "merchant_category"
+                }
+              },
+              "queryRef": "fact_transactions.merchant_category",
+              "nativeQueryRef": "merchant_category"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "amount"
+                }
+              },
+              "queryRef": "fact_transactions.amount",
+              "nativeQueryRef": "amount"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "fee"
+                }
+              },
+              "queryRef": "fact_transactions.fee",
+              "nativeQueryRef": "fee"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "status"
+                }
+              },
+              "queryRef": "fact_transactions.status",
+              "nativeQueryRef": "status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "is_fraud"
+                }
+              },
+              "queryRef": "fact_transactions.is_fraud",
+              "nativeQueryRef": "is_fraud"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_transactions"
+                    }
+                  },
+                  "Property": "risk_score"
+                }
+              },
+              "queryRef": "fact_transactions.risk_score",
+              "nativeQueryRef": "risk_score"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_transactions"
+                  }
+                },
+                "Property": "transaction_date"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Transaction-level detail'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

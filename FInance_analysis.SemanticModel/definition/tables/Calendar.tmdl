@@ -1,0 +1,56 @@
+table Calendar
+	lineageTag: 4cfe9d4b-c9dc-4e32-8cb7-135a4ad0fdaa
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: dd-MM-yyyy
+		lineageTag: 61630091-e40f-4978-81dc-3475b56f5215
+		summarizeBy: none
+		sourceColumn: [Date]
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: f181b3e2-e7d6-4ed1-a2fc-8c09f5de3c79
+		summarizeBy: none
+		sourceColumn: [Year]
+
+	column Month
+		dataType: string
+		lineageTag: 412ae7f8-5b2a-4818-9ace-ee97fc7eadd8
+		summarizeBy: none
+		sourceColumn: [Month]
+		sortByColumn: MonthNo
+
+	column MonthNo
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: fb22c587-cc27-4217-b5d9-74dba426ab19
+		summarizeBy: none
+		sourceColumn: [MonthNo]
+
+	column Quarter
+		dataType: string
+		lineageTag: 1c46cff5-952f-428a-8391-d7c9406dc675
+		summarizeBy: none
+		sourceColumn: [Quarter]
+
+	partition Calendar = calculated
+		mode: import
+		source =
+				-- Runs from 1 Jan of the first data year to the last transaction date,
+				-- so the YTD comparison below is always like-for-like
+				ADDCOLUMNS(
+				    CALENDAR(
+				        DATE(YEAR(MIN(fact_transactions[transaction_date])), 1, 1),
+				        MAX(fact_transactions[transaction_date])
+				    ),
+				    "Year", YEAR([Date]),
+				    "Month", FORMAT([Date], "MMM yyyy"),
+				    "MonthNo", YEAR([Date]) * 100 + MONTH([Date]),
+				    "Quarter", "Q" & QUARTER([Date])
+				)
+

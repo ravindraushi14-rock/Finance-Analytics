@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets and local settings: never commit passwords
+.env
+
+# Rebuilt by the pipeline (python python/run_pipeline.py)
+data/clean/*.csv
+!data/clean/cleaning_log.csv
+outputs/exports/
+
+# Power BI project: local cache and user settings (data reloads on Refresh)
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Temporary bundle
+repo_docs.zip

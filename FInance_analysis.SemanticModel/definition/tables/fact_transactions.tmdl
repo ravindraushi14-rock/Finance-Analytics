@@ -1,0 +1,173 @@
+table fact_transactions
+	lineageTag: 7caf0c73-ce3f-4ab2-abcb-7b27f3cb3d85
+
+	column transaction_id
+		dataType: string
+		lineageTag: 5babdafe-6dcb-4516-9853-50bf2a98db37
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+	column transaction_date
+		dataType: dateTime
+		formatString: dd-MM-yyyy
+		lineageTag: 900e6869-4bfb-488e-97b7-2adab4b4da60
+		summarizeBy: none
+		sourceColumn: transaction_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 9bf195a2-4316-405a-9576-960c78c83194
+		summarizeBy: none
+		sourceColumn: year
+
+	column month
+		dataType: string
+		lineageTag: 34dda654-d653-4567-b075-ccdbbe026859
+		summarizeBy: none
+		sourceColumn: month
+
+	column transaction_type
+		dataType: string
+		lineageTag: e6fa17ff-8993-4dff-b1e8-325e2168f514
+		summarizeBy: none
+		sourceColumn: transaction_type
+
+	column channel
+		dataType: string
+		lineageTag: 05ed894d-751f-46a0-9002-dcbcae5a8522
+		summarizeBy: none
+		sourceColumn: channel
+
+	column merchant_category
+		dataType: string
+		lineageTag: e0488bda-2973-465b-8a89-b736cbe3a640
+		summarizeBy: none
+		sourceColumn: merchant_category
+
+	column amount
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 2f80d0ce-7ab8-4433-94a7-1964d02ab357
+		summarizeBy: none
+		sourceColumn: amount
+
+	column fee
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 4e921de1-0fae-4c60-bdda-bfbee41794f3
+		summarizeBy: none
+		sourceColumn: fee
+
+	column tax
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 2d3ad21e-1e45-42a4-ae49-eac6929312d1
+		summarizeBy: none
+		sourceColumn: tax
+
+	column status
+		dataType: string
+		lineageTag: 3ac7537d-b1d0-4234-9d87-3abd1c6f8b2a
+		summarizeBy: none
+		sourceColumn: status
+
+	column is_fraud
+		dataType: string
+		lineageTag: 3c567019-6c7a-4f16-a771-73fce2d3dc35
+		summarizeBy: none
+		sourceColumn: is_fraud
+
+	column risk_score
+		dataType: int64
+		formatString: 0
+		lineageTag: 1045dbe4-6629-426d-b8db-7f72e0ab8e34
+		summarizeBy: none
+		sourceColumn: risk_score
+
+	column customer_id
+		dataType: string
+		lineageTag: b8a54843-f1df-4fce-b7cd-a3d58c2a95da
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column gender
+		dataType: string
+		lineageTag: 4d5ef913-5120-4a07-a8a5-aee06c98a803
+		summarizeBy: none
+		sourceColumn: gender
+
+	column age
+		dataType: int64
+		formatString: 0
+		lineageTag: b328d796-4f24-4644-8d94-de84188fca91
+		summarizeBy: none
+		sourceColumn: age
+
+	column age_group
+		dataType: string
+		lineageTag: 59278f7d-6294-45d2-a2c3-e29c4c32d331
+		summarizeBy: none
+		sourceColumn: age_group
+
+	column state
+		dataType: string
+		lineageTag: 61e48bba-2c9f-4cbc-b030-2bc598991145
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: state
+
+	column city
+		dataType: string
+		lineageTag: fb818143-19c0-4162-9884-c909887f808b
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: city
+
+	column occupation
+		dataType: string
+		lineageTag: fec549d0-ca10-4a81-bbcf-14469d33d278
+		summarizeBy: none
+		sourceColumn: occupation
+
+	column customer_segment
+		dataType: string
+		lineageTag: cda764a4-e8ef-4411-b8b2-14a9bee7b2fb
+		summarizeBy: none
+		sourceColumn: customer_segment
+
+	partition fact_transactions = m
+		mode: import
+		source =
+				let
+				    // Same server and database you open in pgAdmin (created by python/run_pipeline.py)
+				    Source = PostgreSQL.Database("localhost", "finance_db"),
+				    Fact = Source{[Schema = "public", Item = "v_fact_transactions"]}[Data],
+				    Typed = Table.TransformColumnTypes(Fact, {
+				        {"transaction_id", type text},
+				        {"transaction_date", type date},
+				        {"year", Int64.Type},
+				        {"month", type text},
+				        {"transaction_type", type text},
+				        {"channel", type text},
+				        {"merchant_category", type text},
+				        {"amount", type number},
+				        {"fee", type number},
+				        {"tax", type number},
+				        {"status", type text},
+				        {"is_fraud", type text},
+				        {"risk_score", Int64.Type},
+				        {"customer_id", type text},
+				        {"gender", type text},
+				        {"age", Int64.Type},
+				        {"age_group", type text},
+				        {"state", type text},
+				        {"city", type text},
+				        {"occupation", type text},
+				        {"customer_segment", type text}
+				    })
+				in
+				    Typed
+

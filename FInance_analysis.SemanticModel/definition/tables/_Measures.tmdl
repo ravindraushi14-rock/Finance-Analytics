@@ -1,0 +1,207 @@
+table _Measures
+	lineageTag: 029bf68d-1adf-4b0f-8ac3-0999b439c004
+
+	measure 'Total Amount' = SUM(fact_transactions[amount])
+		formatString: ₹#,0
+		displayFolder: Core
+		lineageTag: 44177cdf-65aa-49ca-a253-f9a00dcd32f8
+
+	measure 'Total Amount (Cr)' = DIVIDE([Total Amount], 10000000)
+		formatString: #,0.00
+		displayFolder: Core
+		lineageTag: 99c59ba1-deb0-4bf9-bf61-2f4dd08de8f0
+
+	measure 'Total Transactions' = COUNTROWS(fact_transactions)
+		formatString: #,0
+		displayFolder: Core
+		lineageTag: 43455e2e-ecf8-40dc-97c9-d45f97f6fc7c
+
+	measure 'Avg Transaction' = DIVIDE([Total Amount], [Total Transactions])
+		formatString: ₹#,0
+		displayFolder: Core
+		lineageTag: 2e525eff-5696-4776-b905-c1de8e146933
+
+	measure 'Total Fees' = SUM(fact_transactions[fee])
+		formatString: ₹#,0
+		displayFolder: Core
+		lineageTag: 2208c9c7-bba8-47cc-a6a9-f4224a4e33ea
+
+	measure 'Total Tax' = SUM(fact_transactions[tax])
+		formatString: ₹#,0
+		displayFolder: Core
+		lineageTag: 24b006f8-677d-4ca4-86d3-51952c690744
+
+	measure 'Success Rate %' = DIVIDE(CALCULATE([Total Transactions], fact_transactions[status] = "Success"), [Total Transactions])
+		formatString: 0.0%
+		displayFolder: Status
+		lineageTag: af0e0964-1cb2-43e0-981f-7cd8832ff175
+
+	measure 'Failure Rate %' = DIVIDE(CALCULATE([Total Transactions], fact_transactions[status] = "Failed"), [Total Transactions])
+		formatString: 0.0%
+		displayFolder: Status
+		lineageTag: a320abc9-26e7-45b3-a546-4fc042468b74
+
+	measure 'Pending Rate %' = DIVIDE(CALCULATE([Total Transactions], fact_transactions[status] = "Pending"), [Total Transactions])
+		formatString: 0.0%
+		displayFolder: Status
+		lineageTag: 0ea7feb9-4853-4f57-b4bc-3c4f56479dc7
+
+	measure 'Fraud Transactions' = CALCULATE([Total Transactions], fact_transactions[is_fraud] = "Yes")
+		formatString: #,0
+		displayFolder: Risk
+		lineageTag: 7acfa10d-031d-4d94-9194-70f80f79937f
+
+	measure 'Avg Risk Score' = AVERAGE(fact_transactions[risk_score])
+		formatString: 0.0
+		displayFolder: Risk
+		lineageTag: 7e93b58b-f8d2-4743-84e7-c56883b51d69
+
+	measure 'Amount YoY % (YTD)' =
+			VAR _LastDay = MAX(fact_transactions[transaction_date])
+			VAR _YearStart = DATE(YEAR(_LastDay), 1, 1)
+			VAR _Cur = CALCULATE([Total Amount], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], _YearStart, _LastDay))
+			VAR _Prev = CALCULATE([Total Amount], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], EDATE(_YearStart, -12), EDATE(_LastDay, -12)))
+			RETURN DIVIDE(_Cur - _Prev, _Prev)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Growth
+		lineageTag: 558a02d4-f326-4a04-b742-6b38ab601466
+
+	measure 'Transactions YoY % (YTD)' =
+			VAR _LastDay = MAX(fact_transactions[transaction_date])
+			VAR _YearStart = DATE(YEAR(_LastDay), 1, 1)
+			VAR _Cur = CALCULATE([Total Transactions], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], _YearStart, _LastDay))
+			VAR _Prev = CALCULATE([Total Transactions], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], EDATE(_YearStart, -12), EDATE(_LastDay, -12)))
+			RETURN DIVIDE(_Cur - _Prev, _Prev)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Growth
+		lineageTag: 1738e75c-66aa-438d-9394-f908d3477acf
+
+	measure 'Avg Transaction YoY % (YTD)' =
+			VAR _LastDay = MAX(fact_transactions[transaction_date])
+			VAR _YearStart = DATE(YEAR(_LastDay), 1, 1)
+			VAR _Cur = CALCULATE([Avg Transaction], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], _YearStart, _LastDay))
+			VAR _Prev = CALCULATE([Avg Transaction], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], EDATE(_YearStart, -12), EDATE(_LastDay, -12)))
+			RETURN DIVIDE(_Cur - _Prev, _Prev)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Growth
+		lineageTag: e7be8d94-55f2-4e35-9d30-1c125bfeffa7
+
+	measure 'Fees YoY % (YTD)' =
+			VAR _LastDay = MAX(fact_transactions[transaction_date])
+			VAR _YearStart = DATE(YEAR(_LastDay), 1, 1)
+			VAR _Cur = CALCULATE([Total Fees], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], _YearStart, _LastDay))
+			VAR _Prev = CALCULATE([Total Fees], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], EDATE(_YearStart, -12), EDATE(_LastDay, -12)))
+			RETURN DIVIDE(_Cur - _Prev, _Prev)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Growth
+		lineageTag: 6129ab4a-a3d3-46ba-aaa4-6fd98a57b596
+
+	measure 'Tax YoY % (YTD)' =
+			VAR _LastDay = MAX(fact_transactions[transaction_date])
+			VAR _YearStart = DATE(YEAR(_LastDay), 1, 1)
+			VAR _Cur = CALCULATE([Total Tax], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], _YearStart, _LastDay))
+			VAR _Prev = CALCULATE([Total Tax], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], EDATE(_YearStart, -12), EDATE(_LastDay, -12)))
+			RETURN DIVIDE(_Cur - _Prev, _Prev)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Growth
+		lineageTag: 4f5c440a-fca8-428a-ab8b-f6c87d877a90
+
+	measure 'Success Rate Change (YTD)' =
+			VAR _LastDay = MAX(fact_transactions[transaction_date])
+			VAR _YearStart = DATE(YEAR(_LastDay), 1, 1)
+			VAR _Cur = CALCULATE([Success Rate %], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], _YearStart, _LastDay))
+			VAR _Prev = CALCULATE([Success Rate %], REMOVEFILTERS('Calendar'), DATESBETWEEN('Calendar'[Date], EDATE(_YearStart, -12), EDATE(_LastDay, -12)))
+			RETURN IF(NOT ISBLANK(_Prev), _Cur - _Prev)
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Growth
+		lineageTag: 95910bf5-6958-436c-93ec-feb756a37e19
+
+	measure 'Amount YoY Label' =
+			VAR _y = [Amount YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "No prior year to compare",
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+		displayFolder: Growth\Card labels
+		lineageTag: 35790be7-793c-45af-a4b1-39ebc6479319
+
+	measure 'Amount YoY Color' =
+			VAR _y = [Amount YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "#9DB2CE", IF(_y >= 0, "#4CD38F", "#FF6B61"))
+		displayFolder: Growth\Card labels
+		lineageTag: bf1f31c9-e42e-4e42-8519-fbe8bddd0f27
+
+	measure 'Transactions YoY Label' =
+			VAR _y = [Transactions YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "No prior year to compare",
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+		displayFolder: Growth\Card labels
+		lineageTag: 03e6d16b-6e04-4d35-919e-4f3d5c5cb276
+
+	measure 'Transactions YoY Color' =
+			VAR _y = [Transactions YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "#9DB2CE", IF(_y >= 0, "#4CD38F", "#FF6B61"))
+		displayFolder: Growth\Card labels
+		lineageTag: c0db0066-923e-4623-8341-e2c316cab188
+
+	measure 'Avg Transaction YoY Label' =
+			VAR _y = [Avg Transaction YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "No prior year to compare",
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+		displayFolder: Growth\Card labels
+		lineageTag: 0d7227ac-100b-4492-87a5-d43de63aac51
+
+	measure 'Avg Transaction YoY Color' =
+			VAR _y = [Avg Transaction YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "#9DB2CE", IF(_y >= 0, "#4CD38F", "#FF6B61"))
+		displayFolder: Growth\Card labels
+		lineageTag: 0ca1409a-4078-4183-b95e-bad07d3c81b9
+
+	measure 'Fees YoY Label' =
+			VAR _y = [Fees YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "No prior year to compare",
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+		displayFolder: Growth\Card labels
+		lineageTag: bc8e259e-0e1f-42cd-b684-cc48db743e6f
+
+	measure 'Fees YoY Color' =
+			VAR _y = [Fees YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "#9DB2CE", IF(_y >= 0, "#4CD38F", "#FF6B61"))
+		displayFolder: Growth\Card labels
+		lineageTag: bdb8d4f7-c4e2-4a34-9c0e-99145b36a6e7
+
+	measure 'Tax YoY Label' =
+			VAR _y = [Tax YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "No prior year to compare",
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+		displayFolder: Growth\Card labels
+		lineageTag: 8222a3e6-0073-4b28-b893-9469989b71d9
+
+	measure 'Tax YoY Color' =
+			VAR _y = [Tax YoY % (YTD)]
+			RETURN IF(ISBLANK(_y), "#9DB2CE", IF(_y >= 0, "#4CD38F", "#FF6B61"))
+		displayFolder: Growth\Card labels
+		lineageTag: ba48cad0-8fdf-47df-aaca-0ede0505517f
+
+	measure 'Success Rate YoY Label' =
+			VAR _y = [Success Rate Change (YTD)]
+			RETURN IF(ISBLANK(_y), "No prior year to compare",
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y) * 100, "0.0") & " pts" & " vs last year (YTD)")
+		displayFolder: Growth\Card labels
+		lineageTag: 9e8573c0-2866-4fa3-b62e-084401f3270b
+
+	measure 'Success Rate YoY Color' =
+			VAR _y = [Success Rate Change (YTD)]
+			RETURN IF(ISBLANK(_y), "#9DB2CE", IF(_y >= 0, "#4CD38F", "#FF6B61"))
+		displayFolder: Growth\Card labels
+		lineageTag: 3906fa63-2278-47bf-a8ef-19abc9a543b5
+
+	column Column
+		dataType: string
+		isHidden
+		lineageTag: 1892a5d9-1f3e-4e9a-91dc-1015ded77a6a
+		summarizeBy: none
+		sourceColumn: [Column]
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW("Column", "")
+

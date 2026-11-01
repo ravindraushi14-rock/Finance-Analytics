@@ -1,0 +1,10 @@
+step,problem,rows_affected,action
+T1,Exact duplicate rows,68,"removed, kept first copy"
+T2,"Same ID, different rows",1,kept the copy with the fee filled
+T3,Dirty channel names,770,"trimmed spaces, 'M@bile App' -> 'Mobile App'"
+T4,Currency in mixed case,605,made upper case
+T5,Blank fee_amount,23,rebuilt as tax / 18% GST
+T6,Negative amounts,8,"made positive, flagged in amount_was_negative"
+T7,Dates stored as text,50000,"converted to dates, added year and month"
+C1,Column name typo 'fisrt_name',5000,renamed to first_name / last_name
+C2,Dates stored as text,5000,converted; age calculated at 30-Apr-2026
