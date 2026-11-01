@@ -125,8 +125,8 @@ The report is saved as a **Power BI Project (`.pbip`)**, which is plain text. Yo
 **Requirements:** Python 3.10+, PostgreSQL (with pgAdmin) and Power BI Desktop (the free version is enough).
 
 ```bash
-git clone https://github.com/ravindraushi14-rock/finance-analytics-python-sql-powerbi.git
-cd finance-analytics-python-sql-powerbi
+git clone https://github.com/ravindraushi14-rock/Finance-Analytics.git
+cd Finance-Analytics
 pip install -r requirements.txt
 python python/run_pipeline.py      # asks for your PostgreSQL password once; creates finance_db
 ```
