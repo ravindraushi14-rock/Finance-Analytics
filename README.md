@@ -10,6 +10,8 @@
 
 **50,069 raw transactions → 50,000 verified records → 29 DAX measures → one interactive dashboard**
 
+### [▶ Open the live interactive dashboard](https://ravindraushi14-rock.github.io/Finance-Analytics/)
+
 ![Overview page](outputs/charts/overview.png)
 
 </div>
