@@ -119,7 +119,7 @@ table _Measures
 	measure 'Amount YoY Label' =
 			VAR _y = [Amount YoY % (YTD)]
 			RETURN IF(ISBLANK(_y), "No prior year to compare",
-			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs PY")
 		displayFolder: Growth\Card labels
 		lineageTag: 35790be7-793c-45af-a4b1-39ebc6479319
 
@@ -132,7 +132,7 @@ table _Measures
 	measure 'Transactions YoY Label' =
 			VAR _y = [Transactions YoY % (YTD)]
 			RETURN IF(ISBLANK(_y), "No prior year to compare",
-			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs PY")
 		displayFolder: Growth\Card labels
 		lineageTag: 03e6d16b-6e04-4d35-919e-4f3d5c5cb276
 
@@ -145,7 +145,7 @@ table _Measures
 	measure 'Avg Transaction YoY Label' =
 			VAR _y = [Avg Transaction YoY % (YTD)]
 			RETURN IF(ISBLANK(_y), "No prior year to compare",
-			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs PY")
 		displayFolder: Growth\Card labels
 		lineageTag: 0d7227ac-100b-4492-87a5-d43de63aac51
 
@@ -158,7 +158,7 @@ table _Measures
 	measure 'Fees YoY Label' =
 			VAR _y = [Fees YoY % (YTD)]
 			RETURN IF(ISBLANK(_y), "No prior year to compare",
-			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs PY")
 		displayFolder: Growth\Card labels
 		lineageTag: bc8e259e-0e1f-42cd-b684-cc48db743e6f
 
@@ -171,7 +171,7 @@ table _Measures
 	measure 'Tax YoY Label' =
 			VAR _y = [Tax YoY % (YTD)]
 			RETURN IF(ISBLANK(_y), "No prior year to compare",
-			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs last year (YTD)")
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y), "0.0%") & " vs PY")
 		displayFolder: Growth\Card labels
 		lineageTag: 8222a3e6-0073-4b28-b893-9469989b71d9
 
@@ -184,7 +184,7 @@ table _Measures
 	measure 'Success Rate YoY Label' =
 			VAR _y = [Success Rate Change (YTD)]
 			RETURN IF(ISBLANK(_y), "No prior year to compare",
-			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y) * 100, "0.0") & " pts" & " vs last year (YTD)")
+			    IF(_y >= 0, "▲ ", "▼ ") & FORMAT(ABS(_y) * 100, "0.0") & " pts" & " vs PY")
 		displayFolder: Growth\Card labels
 		lineageTag: 9e8573c0-2866-4fa3-b62e-084401f3270b
 
