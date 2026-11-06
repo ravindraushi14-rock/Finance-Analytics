@@ -98,6 +98,14 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
   .fx-pager { display: flex; align-items: center; justify-content: flex-end; gap: var(--cds-gap-sm); margin-top: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
   .fx-pager button { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 10px; cursor: pointer; }
   .fx-pager button:disabled { opacity: .4; cursor: default; }
+  .fx-g3 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  #trend { grid-column: span 8; } #status { grid-column: span 4; }
+  #segment, #channels, #states, #gender { grid-column: span 3; }
+  .fx-donut { display: flex; align-items: center; gap: var(--cds-gap-md); flex-wrap: wrap; }
+  .fx-donut svg { flex: none; }
+  .fx-donut path { cursor: pointer; }
+  .fx-donut .fx-legend { flex-direction: column; gap: 4px; margin-top: 0; }
+  @media (max-width: 900px) { #trend, #status, #segment, #channels, #states, #gender { grid-column: auto; } }
   @media (max-width: 900px) { .fx-g3 { grid-template-columns: 1fr; } .fx-span2 { grid-column: auto; } }
   .fx-head { border-left: 4px solid var(--c0); padding-left: var(--cds-pad-sm); }
   .fx-head .fx-title { color: var(--c0); font-weight: 500; }
@@ -187,15 +195,17 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
     </div>
 
     <div class="fx-g3">
-      <div class="fx-card fx-span2" id="trend">
+      <div class="fx-card" id="trend">
         <h3>Monthly trend <span class="fx-unit" data-draw="unit-month" data-source="tx"></span></h3>
         <div class="fx-chart" data-draw="c-month" data-source="tx"></div>
       </div>
       <div class="fx-card" id="status">
         <h3>Transaction status</h3>
-        <div class="fx-stackwrap" data-draw="c-status" data-source="tx"></div>
-        <h3 class="fx-h3b">Customer segment</h3>
-        <div class="fx-chart fx-sm" data-draw="c-segment" data-source="tx"></div>
+        <div data-draw="c-status" data-source="tx"></div>
+      </div>
+      <div class="fx-card" id="segment">
+        <h3>Customer segment</h3>
+        <div class="fx-chart" data-draw="c-segment" data-source="tx"></div>
       </div>
       <div class="fx-card" id="channels">
         <h3>Failure rate by channel</h3>
@@ -207,8 +217,8 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
       </div>
       <div class="fx-card" id="gender">
         <h3>Gender</h3>
-        <div class="fx-chart fx-sm" data-draw="c-gender" data-source="tx"></div>
-        <p class="fx-hint">Click any bar, status band or row to filter all visuals. Click again to clear. Open <b>2 · Details</b> for the type table, insights and transaction detail.</p>
+        <div data-draw="c-gender" data-source="tx"></div>
+        <p class="fx-hint">Click any bar, donut slice or row to filter all visuals. Click again to clear. Open <b>2 · Details</b> for the type table, insights and transaction detail.</p>
       </div>
     </div>
   </section>
@@ -408,20 +418,45 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
       if (!data.length) return;
       const W = el.clientWidth || 600, H = 168, mg = { t: 8, r: 8, b: 22, l: 40 };
       const x = d3.scaleBand(data.map((d) => d.k), [mg.l, W - mg.r]).padding(0.25);
-      const y = d3.scaleLinear([0, d3.max(data, (d) => d.v) * 1.1], [H - mg.b, mg.t]).nice();
+      const [lo, hi] = d3.extent(data, (d) => d.v); const pad = (hi - lo) * 0.15 || hi * 0.1 || 1;
+      const y = d3.scaleLinear([Math.max(0, lo - pad), hi + pad], [H - mg.b, mg.t]).nice();
       const short = (v) => m === 'amount' ? fmt1(v / 1e7) : m === 'txns' ? d3.format('~s')(v) : fmt1(v / 1e5);
       const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
       svg.append('g').attr('transform', `translate(${mg.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - mg.l - mg.r)).tickFormat(short)).call(styleAxis);
       const every = data.length > 14 ? 6 : data.length > 6 ? 2 : 1;
       svg.append('g').attr('transform', `translate(0,${H - mg.b})`).call(d3.axisBottom(x).tickValues(data.filter((d, i) => i % every === 0).map((d) => d.k)).tickFormat((s) => d3.utcFormat('%b %y')(parseM(s))).tickSize(0).tickPadding(8)).call(styleAxis);
       const tip = tipOf(el);
+      const cx = (d) => x(d.k) + x.bandwidth() / 2;
+      svg.append('path').datum(data).attr('fill', 'none').attr('stroke', dash.colors[0]).attr('stroke-width', 2).attr('d', d3.line().x(cx).y((d) => y(d.v)));
+      const dot = svg.append('circle').attr('r', 4).attr('fill', dash.colors[0]).style('display', 'none');
       svg.append('g').selectAll('rect').data(data).join('rect')
-        .attr('x', (d) => x(d.k)).attr('width', x.bandwidth()).attr('y', (d) => y(d.v)).attr('height', (d) => y(0) - y(d.v)).attr('rx', 2).attr('fill', dash.colors[0])
-        .on('mousemove', function (e, d) { d3.select(this).attr('opacity', .75); const [px, py] = d3.pointer(e, el); showTip(el, tip, d3.utcFormat('%b %Y')(d.d), mfmt(d.v, m), px, py); })
-        .on('mouseleave', function () { d3.select(this).attr('opacity', 1); tip.style.display = 'none'; });
+        .attr('x', (d) => x(d.k)).attr('width', x.step()).attr('y', mg.t).attr('height', H - mg.t - mg.b).attr('fill', 'transparent')
+        .on('mousemove', function (e, d) { dot.attr('cx', cx(d)).attr('cy', y(d.v)).style('display', null); const [px, py] = d3.pointer(e, el); showTip(el, tip, d3.utcFormat('%b %Y')(d.d), mfmt(d.v, m), px, py); })
+        .on('mouseleave', function () { dot.style('display', 'none'); tip.style.display = 'none'; });
     });
 
     dash.draw('unit-month', (el) => setText(el, ({ amount: '(₹ Cr)', txns: '(count)', fee: '(₹ L)', tax: '(₹ L)' })[metric()]));
+
+    // Donut helper (click to filter)
+    const donut = (el, data, dim, fmtV, colorFn) => {
+      const picked = dash.params()[dim]; const tot = d3.sum(data, (d) => d.v) || 1; const S = 112;
+      const wrap = document.createElement('div'); wrap.className = 'fx-donut'; el.append(wrap);
+      const svg = d3.select(wrap).append('svg').attr('width', S).attr('height', S).attr('viewBox', `${-S / 2} ${-S / 2} ${S} ${S}`).attr('role', 'img').attr('aria-label', dim + ' split');
+      const arc = d3.arc().innerRadius(S * 0.3).outerRadius(S / 2);
+      svg.selectAll('path').data(d3.pie().sort(null).value((d) => d.v)(data)).join('path')
+        .attr('d', arc).attr('fill', (a, i) => colorFn(a.data, i)).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1)
+        .style('opacity', (a) => picked && picked !== a.data.k ? .3 : 1)
+        .on('click', (e, a) => toggle(dim, a.data.k))
+        .append('title').text((a) => `${a.data.k}: ${fmtV(a.data)}`);
+      const leg = document.createElement('div'); leg.className = 'fx-legend';
+      data.forEach((d, i) => {
+        const it = document.createElement('span'); it.className = 'fx-click'; it.onclick = () => toggle(dim, d.k);
+        const sw = document.createElement('span'); sw.className = 'fx-sw'; sw.style.background = colorFn(d, i);
+        it.append(sw, document.createTextNode(`${d.k}: ${fmtV(d)} (${fmt1(d.v / tot * 100)}%)`));
+        leg.append(it);
+      });
+      wrap.append(leg);
+    };
 
     // Horizontal bars helper (click to filter)
     const hbars = (el, data, dim, fmtV, colorFn) => {
@@ -453,9 +488,9 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
     dash.draw('c-gender', (el) => {
       el.replaceChildren(); if (failLine(el)) return;
       const rows = filtered('gender'); if (!rows) return;
-      const m = metric(); const tot = mval(rows, m) || 1;
-      const data = d3.rollups(rows, (g) => mval(g, m), (r) => r.gender).map(([k, v]) => ({ k, v })).sort((a, b) => b.v - a.v);
-      hbars(el, data, 'gender', (d) => mfmt(d.v, m) + ' · ' + fmt1(d.v / tot * 100) + '%', (d, i) => dash.colors[(3 + i) % dash.colors.length]);
+      const m = metric();
+      const data = d3.rollups(rows, (g) => mval(g, m), (r) => r.gender).map(([k, v]) => ({ k, v })).sort((a, b) => a.k < b.k ? -1 : 1);
+      donut(el, data, 'gender', (d) => mfmt(d.v, m), (d) => d.k === 'Female' ? dash.colors[3] : dash.colors[0]);
     });
     dash.draw('c-state', (el) => {
       el.replaceChildren(); if (failLine(el)) return;
@@ -475,41 +510,28 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
     dash.draw('c-status', (el) => {
       el.replaceChildren(); if (failLine(el)) return;
       const rows = filtered('status'); if (!rows) return;
-      const tot = rows.length || 1; const picked = dash.params().status;
       const col = { Success: 'var(--color-ok)', Failed: 'var(--cds-chart-status-critical)', Pending: 'var(--cds-chart-muted)' };
-      const counts = ['Success', 'Failed', 'Pending'].map((s) => [s, rows.filter((r) => r.status === s).length]);
-      const bar = document.createElement('div'); bar.className = 'fx-stack';
-      const leg = document.createElement('div'); leg.className = 'fx-legend';
-      counts.forEach(([s, n]) => {
-        const seg = document.createElement('div');
-        seg.style.cssText = `width:${n / tot * 100}%;background:${col[s]};opacity:${picked && picked !== s ? .3 : 1}`;
-        seg.onclick = () => toggle('status', s);
-        bar.append(seg);
-        const it = document.createElement('span'); it.className = 'fx-click'; it.onclick = () => toggle('status', s);
-        const sw = document.createElement('span'); sw.className = 'fx-sw'; sw.style.background = col[s];
-        it.append(sw, document.createTextNode(`${s}: ${fmtInt(n)} (${fmt1(n / tot * 100)}%)`));
-        leg.append(it);
-      });
-      el.append(bar, leg);
+      const data = ['Success', 'Failed', 'Pending'].map((s) => ({ k: s, v: rows.filter((r) => r.status === s).length }));
+      donut(el, data, 'status', (d) => fmtInt(d.v), (d) => col[d.k]);
     });
 
     dash.draw('t-types', (el) => {
       el.replaceChildren(); if (failLine(el)) return;
       const rows = filtered('type'); if (!rows) return;
       const picked = dash.params().type;
-      const data = d3.rollups(rows, (g) => ({ amount: d3.sum(g, (r) => r.amount), n: g.length, fee: d3.sum(g, (r) => r.fee), tax: d3.sum(g, (r) => r.tax) }), (r) => r.type).map(([k, v]) => ({ k, ...v })).sort((a, b) => b.fee - a.fee);
+      const data = d3.rollups(rows, (g) => ({ amount: d3.sum(g, (r) => r.amount), n: g.length, fee: d3.sum(g, (r) => r.fee), tax: d3.sum(g, (r) => r.tax), failed: g.filter((r) => r.status === 'Failed').length, fraud: g.filter((r) => r.fraud === 'Yes').length, risk: d3.mean(g, (r) => r.risk) }), (r) => r.type).map(([k, v]) => ({ k, ...v })).sort((a, b) => b.fee - a.fee);
       const maxFee = d3.max(data, (d) => d.fee) || 1;
       const t = document.createElement('table');
       const hr = document.createElement('tr');
-      ['Transaction type', 'Value (₹ Cr)', 'Transactions', 'Fees (₹ L)', 'Tax (₹ L)'].forEach((h) => { const th = document.createElement('th'); th.textContent = h; hr.append(th); });
+      ['Transaction type', 'Value (₹ Cr)', 'Transactions', 'Avg (₹)', 'Fees (₹ L)', 'Tax (₹ L)', 'Failure %', 'Fraud', 'Avg risk'].forEach((h) => { const th = document.createElement('th'); th.textContent = h; hr.append(th); });
       const thead = document.createElement('thead'); thead.append(hr);
       const tb = document.createElement('tbody');
       data.forEach((d) => {
         const tr = document.createElement('tr'); if (picked && picked !== d.k) tr.className = 'fx-dim';
         tr.onclick = () => toggle('type', d.k);
-        [d.k, fmt2(d.amount / 1e7), fmtInt(d.n), null, fmt2(d.tax / 1e5)].forEach((c, i) => {
+        [d.k, fmt2(d.amount / 1e7), fmtInt(d.n), fmtInt(Math.round(d.amount / d.n)), null, fmt2(d.tax / 1e5), fmt1(d.failed / d.n * 100), fmtInt(d.fraud), fmt1(d.risk)].forEach((c, i) => {
           const td = document.createElement('td');
-          if (i === 3) { const b = document.createElement('span'); b.className = 'fx-cellbar'; b.style.cssText = `width:${Math.round(d.fee / maxFee * 60)}px;background:${dash.colors[0]}`; td.append(b, document.createTextNode(fmt2(d.fee / 1e5))); }
+          if (i === 4) { const b = document.createElement('span'); b.className = 'fx-cellbar'; b.style.cssText = `width:${Math.round(d.fee / maxFee * 60)}px;background:${dash.colors[0]}`; td.append(b, document.createTextNode(fmt2(d.fee / 1e5))); }
           else td.textContent = c;
           tr.append(td);
         });
