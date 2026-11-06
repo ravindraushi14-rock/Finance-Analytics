@@ -387,12 +387,15 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
     const kfmt = { amount: (v) => '₹' + fmt2(v / 1e7) + ' Cr', txns: (v) => fmtInt(v), avg: (v) => '₹' + fmtInt(Math.round(v)), fee: (v) => '₹' + fmt2(v / 1e5) + ' L', tax: (v) => '₹' + fmt2(v / 1e5) + ' L', succ: (v) => fmt1(v) + '%' };
     const compare = () => remember('cmp', () => compareNow());
     const compareNow = () => {
-      const base = filtered('year'); if (!base) return null;
-      const y = dash.params().year;
-      if (!y) return { cur: base.filter((r) => r.year === '2025'), prev: base.filter((r) => r.year === '2024'), label: '2025 vs 2024' };
-      if (y === '2023') return { cur: null, prev: null, label: 'No earlier year to compare' };
-      if (y === '2026') return { cur: base.filter((r) => r.year === '2026'), prev: base.filter((r) => r.year === '2025' && r.month <= '2025-04'), label: 'vs Jan–Apr 2025' };
-      return { cur: base.filter((r) => r.year === y), prev: base.filter((r) => r.year === String(Number(y) - 1)), label: 'vs ' + (Number(y) - 1) };
+      // Same rule as the Power BI YTD measures: 1 Jan to the last date in view, against the same dates a year earlier
+      const base = filtered('year'), rows = filtered(); if (!base || !rows) return null;
+      if (!rows.length) return { cur: null, prev: null, label: 'No data' };
+      const last = d3.max(rows, (r) => r.date); const yr = Number(last.slice(0, 4));
+      const prevLast = (yr - 1) + (last.slice(4) === '-02-29' ? '-02-28' : last.slice(4));
+      const between = (from, to) => base.filter((r) => r.date >= from && r.date <= to);
+      const prev = between((yr - 1) + '-01-01', prevLast);
+      if (!prev.length) return { cur: null, prev: null, label: 'No prior year to compare' };
+      return { cur: between(yr + '-01-01', last), prev, label: 'vs last year (YTD)' };
     };
     ['amount', 'txns', 'avg', 'fee', 'tax', 'succ'].forEach((k) => {
       dash.draw('k-' + k, (el) => { const r = filtered(); const v = kpi(r, k); setText(el, v == null ? null : kfmt[k](v)); });
@@ -404,7 +407,7 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
         if (a == null || b == null || b === 0) { setText(el, c.label + ': no data'); return; }
         const ch = k === 'succ' ? a - b : (a - b) / b * 100;
         el.classList.add(ch >= 0 ? 'fx-up' : 'fx-down');
-        setText(el, (ch >= 0 ? '▲ +' : '▼ ') + fmt1(ch) + (k === 'succ' ? ' pts ' : '% ') + c.label);
+        setText(el, (ch >= 0 ? '▲ ' : '▼ ') + fmt1(Math.abs(ch)) + (k === 'succ' ? ' pts ' : '% ') + c.label);
       });
     });
 
