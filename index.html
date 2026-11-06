@@ -395,7 +395,7 @@ window.__D={tx:out,data_quality:[{"check": "Channel names with extra spaces or t
       const between = (from, to) => base.filter((r) => r.date >= from && r.date <= to);
       const prev = between((yr - 1) + '-01-01', prevLast);
       if (!prev.length) return { cur: null, prev: null, label: 'No prior year to compare' };
-      return { cur: between(yr + '-01-01', last), prev, label: 'vs last year (YTD)' };
+      return { cur: between(yr + '-01-01', last), prev, label: 'vs PY' };
     };
     ['amount', 'txns', 'avg', 'fee', 'tax', 'succ'].forEach((k) => {
       dash.draw('k-' + k, (el) => { const r = filtered(); const v = kpi(r, k); setText(el, v == null ? null : kfmt[k](v)); });
